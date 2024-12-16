@@ -42,7 +42,8 @@ environment_variables: Dict[str, Callable[[], Any]] = {
 variables: Dict[str, Callable[[], Any]] = {
     # ================== Other Vars ==================
     # used in version checking
-    "CUDA_VERSION": lambda: version.parse(torch.version.cuda),
+    "CUDA_VERSION": lambda: version.parse(torch.version.cuda) if torch.version.cuda else '' ,
+    "ROCM_VERSION": lambda: version.parse(torch.version.hip.split('-')[0]) if torch.version.hip else '',
     "TORCH_VERSION": lambda: version.parse(
         version.parse(torch.__version__).base_version
     ),
