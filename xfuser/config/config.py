@@ -8,7 +8,7 @@ from torch import distributed as dist
 
 from xfuser.logger import init_logger
 import xfuser.envs as envs
-from xfuser.envs import CUDA_VERSION, TORCH_VERSION, PACKAGES_CHECKER
+from xfuser.envs import CUDA_VERSION, TORCH_VERSION, PACKAGES_CHECKER, ROCM_VERSION
 
 logger = init_logger(__name__)
 
@@ -30,9 +30,11 @@ def check_packages():
 
 
 def check_env():
+    if ROCM_VERSION and ROCM_VERSION < version.parse("5.3"):
+        raise RuntimeError("NCCL CUDA Graph support requires ROCM >= 5.3")
     # https://docs.nvidia.com/deeplearning/nccl/user-guide/docs/usage/cudagraph.html
-    if CUDA_VERSION < version.parse("11.3"):
-        raise RuntimeError("NCCL CUDA Graph support requires CUDA 11.3 or above")
+    if CUDA_VERSION and CUDA_VERSION < version.parse("11.3"):
+        raise RuntimeError("NCCL CUDA Graph support requires CUDA >= 11.3")
     if TORCH_VERSION < version.parse("2.2.0"):
         # https://pytorch.org/blog/accelerating-pytorch-with-cuda-graphs/
         raise RuntimeError(
